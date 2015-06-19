@@ -1,0 +1,25 @@
+{
+  "manifest_version": 2,
+  "name": "Deadcode Tools for KDice",
+  "version": "2.0.0",
+  "description": "This tools allows you to record/view notes on each player.  (www.kdice.com)",
+  "permissions": [
+    "http://kdice.com/*"
+  ],
+  "icons": {
+    "16" : "icon16.png",
+    "48" : "icon48.png",
+    "128" : "icon128.png"
+  },
+  "background": {
+    "page": "background.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://www.kdice.com/*", "http://kdice.com/*", "http://kdice.com/*"],
+      "js" : ["jquery.js", "jquery.highlight.js", "json.js", "contentscript.js"]
+    }
+  ],
+  "content_security_policy": "script-src 'self' https://www.google-analytics.com; object-src 'self'",
+  "web_accessible_resources": ["skull.jpg"]
+}
