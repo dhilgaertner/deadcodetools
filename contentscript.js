@@ -12,15 +12,13 @@ dctools.init = function() {
 		}
 
         $('div.topic-item div.body').each(function() {
-            var html = $(this).html();
-            var matches = findUrls(html);
+            var urls = $(this).find('a');
 
-            $.each(matches, function(index, value) {
-                var replace = dctools.processForumUrl(value);
-                html = replaceAll(html, value, replace);
+            $.each(urls, function(index, value) {
+                var replace = dctools.processForumUrl2(value);
+                $(value).replaceWith(replace);
             });
-            $(this).html(html);
-            //console.log(matches);
+            //console.log(urls);
         });
     } else if(dctools.currentSection() == "profile") {
         var username = $('#profile table:nth-child(1) td:nth-child(2) h2.mainheader:nth-child(1)').text();
@@ -184,6 +182,18 @@ dctools.processForumUrl = function(url) {
         console.log('image found: ' + url);
     } else {
         return '<a href="' + url + '" target="_blank">' + url + '</a>';
+    }
+}
+
+dctools.processForumUrl2 = function(urlEl) {
+    var imageTest = /\.(jpe?g|png|gif)$/gi;
+    var url = $(urlEl).attr('href');
+
+    if (imageTest.test(url)) {
+        return $('<img src="' + url + '" style="max-width: 700px;"><br>Source: <a href="' + url + '" target="_blank">' + url + '</a>');
+        console.log('image found: ' + url);
+    } else {
+        return null;
     }
 }
 
