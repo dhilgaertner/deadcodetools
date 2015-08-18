@@ -16,7 +16,10 @@ dctools.init = function() {
 
             $.each(urls, function(index, value) {
                 var replace = dctools.processForumUrl2(value);
-                $(value).replaceWith(replace);
+
+                if (replace != null) {
+                    $(value).replaceWith(replace);
+                }
             });
             //console.log(urls);
         });
