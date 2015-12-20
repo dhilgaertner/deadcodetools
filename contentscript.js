@@ -3,6 +3,8 @@ dctools.isTimerOn = false;
 dctools.isInit = false;
 dctools.browser = null;
 dctools.wsCounter = 0;
+dctools.talk = null;
+dctools.tableName = null;
 
 dctools.init = function() {
 	if(dctools.currentSection() == "forum") {
@@ -42,8 +44,14 @@ dctools.init = function() {
 		var flagHighlightGame = $('<br/><span><input type="checkbox" name="dct-options-hiflags-game" /> <b>Highlight Flags (Game)</b> </span>').appendTo(sidepanel);
 		var flagHighlight = $('<br/><span><input type="checkbox" name="dct-options-hiflags" /> <b>Highlight Flags (Chat)</b> </span>').appendTo(sidepanel);
 		var kakkuTheme = $('<br/><span><input type="checkbox" name="dct-options-kakkutheme" /> <b>Kakku Mans Theme</b> </span><br />').appendTo(sidepanel);
-	
-		awaTitle.hide();
+
+        var betaTitle = $('<br/><hr><br/><span><b>BETA Feature(s)</b> <input type="checkbox" name="dct-options-beta" /></span><br />').appendTo(sidepanel);
+        var tableChat = $('<br/><span><input type="checkbox" name="dct-options-tablechat" /> <b>Connect To Voice Chat (table)</b> </span><br />').appendTo(sidepanel);
+        var betaDesc = $('<br/><span>Thanks for using Deadcode Tools.  This feature allows for voice communication at the table level.  Checking the box will connect you to the room\'s voice chat.  You will hear and be able to speak to people within the room who also use Deadcode Tools and have this box checked. This is just a test version of the feature. Use for fun only. Enjoy! Please send me feedback and bugs on forum or at <a href="mailto:dustin@yax.io">dustin@yax.io</a>. - deadcode</span>').appendTo(sidepanel);
+
+        tableChat.hide();
+        betaDesc.hide();
+        awaTitle.hide();
 	
 		dctools.infoBox = $('<div class="dct-infobox" style="z-index: 99; position: absolute; top:180px; left:150px; height:340px; width:500px; background-color: white; border: 2px solid Grey;"></div>')
 	
@@ -119,7 +127,58 @@ dctools.init = function() {
 				track("Kakku Man Theme", "Checked");
 			}
 		});
-	
+
+        if (GM_getValue("dct-options-beta") != null) {
+            $('input[name="dct-options-beta"]').prop('checked', true);
+            tableChat.show();
+            betaDesc.show();
+        }
+
+        $('input[name="dct-options-beta"]').change(function(){
+            if ($('input[name="dct-options-beta"]:checked').length == 0) {
+                GM_deleteValue("dct-options-beta");
+                tableChat.hide();
+                betaDesc.hide();
+                track("Beta Feature", "Off");
+            } else {
+                GM_setValue("dct-options-beta", "true");
+                tableChat.show();
+                betaDesc.show();
+                track("Beta Feature", "On");
+            }
+        });
+
+        $('input[name="dct-options-tablechat"]').change(function(){
+            if ($('input[name="dct-options-tablechat"]:checked').length == 0) {
+                GM_deleteValue("dct-options-tablechat");
+                if (dctools.talk != null) {
+                    dctools.talk.disconnect();
+                    console.log("dctools.disconnect();");
+
+                }
+                track("Table Chat", "Off");
+            } else {
+                GM_setValue("dct-options-tablechat", "true");
+
+                var roomName = window.location.hash;
+                var userName = $('div.iogc-LoginPanel-nameHeading').html();
+
+                if (dctools.talk == null) {
+                    dctools.talk = new Talk("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", function() {
+                        dctools.talk.connect(roomName, userName);
+                        console.log("dctools.connect(" + roomName + ", " + userName + ");");
+                    });
+                } else {
+                    dctools.talk.disconnect();
+                    console.log("dctools.disconnect();");
+                    dctools.talk.connect(roomName, userName);
+                    console.log("dctools.connect(" + roomName + ", " + userName + ");");
+                }
+
+                track("Table Chat", "On");
+            }
+        });
+
 		$('#iogc-regularMenu').clone().insertAfter('#hd');
 	
 		$('.iogc-GameWindow-sitDownButton').click(function() {
@@ -152,6 +211,33 @@ dctools.heartbeat = function() {
 				dctools.isInit = true;
 			}
 		}
+
+        var currentTableName = window.location.hash;
+
+        if (dctools.tableName != currentTableName) {
+            if ($('input[name="dct-options-tablechat"]:checked').length != 0) {
+                GM_setValue("dct-options-tablechat", "true");
+
+                var roomName = window.location.hash;
+                var userName = $('div.iogc-LoginPanel-nameHeading').html();
+
+                if (dctools.talk == null) {
+                    dctools.talk = new Talk("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", function() {
+                        dctools.talk.connect(roomName, userName);
+                        console.log("dctools.connect(" + roomName + ", " + userName + ");");
+                    });
+                } else {
+                    dctools.talk.disconnect();
+                    console.log("dctools.disconnect();");
+                    dctools.talk.connect(roomName, userName);
+                    console.log("dctools.connect(" + roomName + ", " + userName + ");");
+                }
+
+                track("Table Chat", "On");
+            }
+
+            dctools.tableName = currentTableName;
+        }
 
 		dctools.timer = setTimeout(dctools.heartbeat, 3000);
 	}
@@ -202,10 +288,15 @@ dctools.processForumUrl2 = function(urlEl) {
 
 dctools.checkForChatKeyword = function(elements) {
 	if (GM_getValue("dct-options-hiflags") != null) {
-		$(elements).highlight('flag')
-				   .highlight('flg')
-				   .highlight('falg')
-				   .highlight('lagf');
+        try {
+            $(elements).highlight("flag")
+                .highlight('flg')
+                .highlight('falg')
+                .highlight('lagf');
+        }
+        catch(err) {
+            console.log("Highlight Chat Flags Failed.")
+        }
 	}
 }
 
