@@ -1,0 +1,17 @@
+<div ng-controller="infobox" ng-show="isVisible" class="dct-infobox gwt-DialogBox" style="z-index: 99; position: absolute; top:170px; left:150px; height:350px; width:500px; background-color: white; border: 2px solid Grey;">
+    <div class="dct-status">
+        <div class="dct-close iogc-NewButton" ng-click="closeInfoBox()" style="cursor: pointer; color: white; float: right; height:15px; width:40px; background-color: crimson;">Close</div>
+    </div>
+    <div class="dct-header" style="height: 80px;">
+        <div style="float:left; width: 75px;"><img class="iogc-PlayerPanel-avatar" ng-src="{{avatarUrl}}" aria-hidden="false" style="width: 64px; height: 64px;"></div>
+        <div style="float:left; width: 200px;"><a href="/profile/{{profileId}}" target="_blank" style="margin-top: 30px; font-size: 20px;">{{username}}</a></div>
+    </div>
+    <div class="dct-edit">
+        <div style="margin-rigth: 5px; margin-top: 0px; ">
+            <span style="font-size: 15px;">Comments</span><br />
+            <textarea ng-model="comments" style="width: 486px; height: 200px;"></textarea><br />
+            <button ng-click="addKdiceReview()" class="iogc-NewButton iogc-NewButton-blue" style="float: left; width: 150px;" type="button">Post as KDice Review</button>
+            <button ng-click="saveAndExit()" class="iogc-NewButton iogc-NewButton-blue" style="float: right; width: 100px;" type="button">Save and Exit</button>
+        </div>
+    </div>
+</div>

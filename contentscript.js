@@ -1,15 +1,39 @@
+
+
 dctools = {};
-dctools.isTimerOn = false;
-dctools.isInit = false;
 dctools.browser = null;
-dctools.wsCounter = 0;
-dctools.talk = null;
-dctools.tableName = null;
+
+dctools.newinit = function() {
+    async.parallel({
+            main: function(callback){
+                $.get(chrome.extension.getURL('views/main.html'), function(data) {
+                    callback(null, $(data));
+                });
+            },
+            infobox: function(callback){
+                $.get(chrome.extension.getURL('views/infobox.html'), function(data) {
+                    callback(null, $(data));
+                });
+            }
+        },
+        function(err, results) {
+            //Add the DCT Main panel
+            $('#iogc-PlayerPanel').after(results.main);
+
+            //Add the DCT Info Box
+            $('#mainpage').append(results.infobox);
+
+            //Duplicate the KDice menu to the top of the screen for convenience
+            $('#iogc-regularMenu').clone().insertAfter('#hd');
+
+            angular.bootstrap(document, ['dctApp']);
+        });
+}
 
 dctools.init = function() {
+
 	if(dctools.currentSection() == "forum") {
 		if (GM_getValue("dct-options-kakkutheme") != null) {
-			$('input[name="dct-options-kakkutheme"]').prop('checked', true);
 			dctools.kakkuTheme();
 		}
 
@@ -33,234 +57,7 @@ dctools.init = function() {
             var section = $('#profile table:nth-child(1) td:nth-child(1) .section:nth-of-type(3)');
             section.after($('<div class="section" style="text-align: center"><div class="sideStats"><img align="center" width="80" src="' + skullUrl + '"></div><span>BAMF</span></div>'));
         }
-    } else {
-		var panel = $('<div style="margin-top: 10px;"></div>');
-		var dctTitle = $('<div class="iogc-SidePanel-title">Deadcode Tools</div>').appendTo(panel);
-		var sidepanel = $('<div class="iogc-SidePanel-inner"></div>').appendTo(panel);
-
-        var dctNotes = $('<span><input type="checkbox" id="dct-notes" checked="true" disabled="true" /> <b>Player Notes</b>: ON (local) </span><br/>').appendTo(sidepanel);
-		var aetTitle = $('<span><input type="checkbox" id="dct-aet" /> <b>Auto End Turn</b></span>').appendTo(sidepanel);
-		var awaTitle = $('<span><input type="checkbox" id="dct-awa" /> <b>Attack Alert</b> </span>').appendTo(sidepanel);
-		var flagHighlightGame = $('<br/><span><input type="checkbox" name="dct-options-hiflags-game" /> <b>Highlight Flags (Game)</b> </span>').appendTo(sidepanel);
-		var flagHighlight = $('<br/><span><input type="checkbox" name="dct-options-hiflags" /> <b>Highlight Flags (Chat)</b> </span>').appendTo(sidepanel);
-		var kakkuTheme = $('<br/><span><input type="checkbox" name="dct-options-kakkutheme" /> <b>Kakku Mans Theme</b> </span><br />').appendTo(sidepanel);
-
-        var betaTitle = $('<br/><hr><br/><span><b>BETA Feature(s)</b> <input type="checkbox" name="dct-options-beta" /></span><br />').appendTo(sidepanel);
-        var tableChat = $('<br/><span><input type="checkbox" name="dct-options-tablechat" /> <b>Connect To Voice Chat (table)</b> </span><br />').appendTo(sidepanel);
-        var betaDesc = $('<br/><span>Thanks for using Deadcode Tools.  This feature allows for voice communication at the table level.  Checking the box will connect you to the room\'s voice chat.  You will hear and be able to speak to people within the room who also use Deadcode Tools and have this box checked. This is just a test version of the feature. Use for fun only. Enjoy! Please send me feedback and bugs on forum or at <a href="mailto:dustin@yax.io">dustin@yax.io</a>. - deadcode</span>').appendTo(sidepanel);
-
-        tableChat.hide();
-        betaDesc.hide();
-        awaTitle.hide();
-	
-		dctools.infoBox = $('<div class="dct-infobox" style="z-index: 99; position: absolute; top:180px; left:150px; height:340px; width:500px; background-color: white; border: 2px solid Grey;"></div>')
-	
-		dctools.infoBox.append($('<div class="dct-status"><div class="dct-close" style="cursor: pointer; color: white; float: right; height:15px; width:15px; background-color: Red;">X</div></div>'));
-		dctools.infoBox.append($('<div class="dct-header"></div>'));
-		dctools.infoBox.append($('<div class="dct-edit"><div style="float: left; margin-left: 5px; margin-top: 16px; width: 170px; border: 1px solid black;">' + 
-			'<input type="checkbox" name="stabbed-me" /> Stabbed me<br />' +
-			'<input type="checkbox" name="trucer" /> Capable of trucing<br />' +
-			'<input type="checkbox" name="pga" /> PGA<br />' +
-			'<input type="checkbox" name="racist"  /> Racist<br />' +
-			'<input type="checkbox" name="jerk"  /> Jerk<br />' +
-			'<input type="checkbox" name="honorable"  /> Honorable<br />' +
-			'<input type="checkbox" name="pro" /> Pro<br />' +
-			'<input type="checkbox" name="intermediate" /> Intermediate<br />' +
-			'<input type="checkbox" name="beginner" /> Beginner<br />' +
-			'<input type="checkbox" name="farmer" /> Farmer<br />' +
-			'<input type="checkbox" name="silent_truces" /> Silent Truces<br />' +
-			'<input type="checkbox" name="spammer" /> Spammer<br />' +
-			'</div><div style="float: right; width: 310; margin-rigth: 5px; margin-top: 0px;">' +
-			'<span>Comments</span><br />' +
-			'<textarea name="comments" style="width: 305px; height: 200px;"></textarea><br />' +
-			'<button class="dct-kdice-review" style="float: left;" type="button">Post as KDice Review</button>' +
-			'<button class="dct-save" style="float: right;" type="button">Save and Exit</button>' +
-			'</div></div>'));
-
-		$('#iogc-PlayerPanel').after(panel);
-		
-		if (GM_getValue("dct-options-hiflags-game") != null) {
-			$('input[name="dct-options-hiflags-game"]').prop('checked', true);
-		}
-	
-		$('input[name="dct-options-hiflags-game"]').change(function(){
-			if ($('input[name="dct-options-hiflags-game"]:checked').length == 0) {
-				GM_deleteValue("dct-options-hiflags-game");
-				dctools.checkGameForFlags(true);
-				track("Highlight Flags (Game)", "Unchecked");
-			} else {
-				GM_setValue("dct-options-hiflags-game", "true");
-				dctools.checkGameForFlags(false);
-				track("Highlight Flags (Game)", "Checked");
-			}
-		});
-		
-		if (GM_getValue("dct-options-hiflags") != null) {
-			$('input[name="dct-options-hiflags"]').prop('checked', true);
-		}
-	
-		$('input[name="dct-options-hiflags"]').change(function(){
-			if ($('input[name="dct-options-hiflags"]:checked').length == 0) {
-				GM_deleteValue("dct-options-hiflags");
-				track("Highlight Flags", "Unchecked");
-			} else {
-				GM_setValue("dct-options-hiflags", "true");
-				dctools.checkForChatKeyword($('.iogc-MessagePanel-inner td'));
-				track("Highlight Flags", "Checked");
-			}
-		});
-	
-		if (GM_getValue("dct-options-kakkutheme") != null) {
-			$('input[name="dct-options-kakkutheme"]').prop('checked', true);
-			dctools.kakkuTheme();
-		}
-	
-		$('input[name="dct-options-kakkutheme"]').change(function(){
-			if ($('input[name="dct-options-kakkutheme"]:checked').length == 0) {
-				GM_deleteValue("dct-options-kakkutheme");
-				$('input[name="dct-options-kakkutheme"]').attr('disabled', true);
-				alert('Refresh page for changes to take effect.')
-				track("Kakku Man Theme", "Unchecked");
-			} else {
-				GM_setValue("dct-options-kakkutheme", "true");
-				dctools.kakkuTheme();
-				track("Kakku Man Theme", "Checked");
-			}
-		});
-
-        if (GM_getValue("dct-options-beta") != null) {
-            $('input[name="dct-options-beta"]').prop('checked', true);
-            tableChat.show();
-            betaDesc.show();
-        }
-
-        $('input[name="dct-options-beta"]').change(function(){
-            if ($('input[name="dct-options-beta"]:checked').length == 0) {
-                GM_deleteValue("dct-options-beta");
-                tableChat.hide();
-                betaDesc.hide();
-                track("Beta Feature", "Off");
-            } else {
-                GM_setValue("dct-options-beta", "true");
-                tableChat.show();
-                betaDesc.show();
-                track("Beta Feature", "On");
-            }
-        });
-
-        $('input[name="dct-options-tablechat"]').change(function(){
-            if ($('input[name="dct-options-tablechat"]:checked').length == 0) {
-                GM_deleteValue("dct-options-tablechat");
-                if (dctools.talk != null) {
-                    dctools.talk.disconnect();
-                    console.log("dctools.disconnect();");
-
-                }
-                track("Table Chat", "Off");
-            } else {
-                GM_setValue("dct-options-tablechat", "true");
-
-                var roomName = window.location.hash;
-                var userName = $('div.iogc-LoginPanel-nameHeading').html();
-
-                if (dctools.talk == null) {
-                    dctools.talk = new Talk("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", function() {
-                        dctools.talk.connect(roomName, userName);
-                        console.log("dctools.connect(" + roomName + ", " + userName + ");");
-                    });
-                } else {
-                    dctools.talk.disconnect();
-                    console.log("dctools.disconnect();");
-                    dctools.talk.connect(roomName, userName);
-                    console.log("dctools.connect(" + roomName + ", " + userName + ");");
-                }
-
-                track("Table Chat", "On");
-            }
-        });
-
-		$('#iogc-regularMenu').clone().insertAfter('#hd');
-	
-		$('.iogc-GameWindow-sitDownButton').click(function() {
-			dctools.AutoEndTurnCheck();
-		})
-	
-		dctools.isTimerOn = true;
-		dctools.heartbeat();
-		track("Deadcode Tools", "Initialized");
-	}
-}
-
-dctools.heartbeat = function() {
-	if (dctools.isTimerOn) {
-		
-		dctools.updatePlayers();
-		dctools.AutoEndTurnCheck();
-		dctools.processChat();
-		dctools.processMessages();
-		
-		if (!dctools.isInit) {
-			var elArr = $('.iogc-LoginPanel-nameHeading');
-			if (elArr.length > 0) {
-				var n = $(elArr[0]).html();
-
-                chrome.runtime.sendMessage({'action' : 'setUser', 'user' : n}, function(){
-                    //console.log("sent: " + n);
-                });
-
-				dctools.isInit = true;
-			}
-		}
-
-        var currentTableName = window.location.hash;
-
-        if (dctools.tableName != currentTableName) {
-            if ($('input[name="dct-options-tablechat"]:checked').length != 0) {
-                GM_setValue("dct-options-tablechat", "true");
-
-                var roomName = window.location.hash;
-                var userName = $('div.iogc-LoginPanel-nameHeading').html();
-
-                if (dctools.talk == null) {
-                    dctools.talk = new Talk("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", function() {
-                        dctools.talk.connect(roomName, userName);
-                        console.log("dctools.connect(" + roomName + ", " + userName + ");");
-                    });
-                } else {
-                    dctools.talk.disconnect();
-                    console.log("dctools.disconnect();");
-                    dctools.talk.connect(roomName, userName);
-                    console.log("dctools.connect(" + roomName + ", " + userName + ");");
-                }
-
-                track("Table Chat", "On");
-            }
-
-            dctools.tableName = currentTableName;
-        }
-
-		dctools.timer = setTimeout(dctools.heartbeat, 3000);
-	}
-}
-
-dctools.processChat = function() {
-	var newMessages = $('.iogc-ChatPanel-messages tr:not(.dct-processed)');
-	
-	if (newMessages.length > 0) {
-		
-		dctools.checkForChatKeyword(newMessages);
-		
-		newMessages.addClass("dct-processed");
-	}
-}
-
-dctools.processMessages = function() {
-	var newMessages = $('.iogc-MessagePanel-messages tr:not(.dct-processed)');
-	
-	if (newMessages.length > 0) {
-		
-		newMessages.addClass("dct-processed");
-	}
+    }
 }
 
 dctools.processForumUrl = function(url) {
@@ -286,42 +83,6 @@ dctools.processForumUrl2 = function(urlEl) {
     }
 }
 
-dctools.checkForChatKeyword = function(elements) {
-	if (GM_getValue("dct-options-hiflags") != null) {
-        try {
-            $(elements).highlight("flag")
-                .highlight('flg')
-                .highlight('falg')
-                .highlight('lagf');
-        }
-        catch(err) {
-            console.log("Highlight Chat Flags Failed.")
-        }
-	}
-}
-
-dctools.AutoEndTurnCheck = function() {
-	if ($('#dct-aet').is(':checked')) {
-		if ($('.iogc-GameWindow-status').html().indexOf("waiting") != -1) {
-			$('#dct-aet').prop('checked', false);
-		}
-		
-		var isRound1 = ($('.iogc-GameWindow-status').html().length - $('.iogc-GameWindow-status').html().indexOf("running round 1")) == 15;
-		
-		if (isRound1) {
-			$('#dct-aet').prop('checked', false);
-		}
-	}
-	
-	if ($('#dct-aet').is(':checked')) {
-		$('.iogc-Controls button:visible').each(function() {
-			if ($(this).html() == "End Turn") {
-				this.click();
-				track("Auto End Turn", "Turn Ended");
-			}
-		});
-	}
-}
 
 dctools.chromeSupport = function() {
 	if (typeof GM_deleteValue == 'undefined') {
@@ -372,24 +133,6 @@ dctools.chromeSupport = function() {
 	    }
 	} else {
 		dctools.browser = "firefox";
-	}
-}
-
-dctools.checkGameForFlags = function(shouldClear) {
-	if (GM_getValue("dct-options-hiflags-game") != null) {
-		$('.iogc-PlayerPanel*').each(function(){
-			var isFlagged = $(this).find('.iogc-StatPanel table:first > tbody > tr > td').length > 1;
-	
-			if (isFlagged) {
-				$(this).css('border', 'double black');
-			} else {
-				$(this).css('border', 'none');
-			}
-		});
-	} else {
-		if (shouldClear) {
-			$('.iogc-PlayerPanel*').css('border', 'none');
-		}
 	}
 }
 
@@ -474,9 +217,29 @@ dctools.updatePlayers = function() {
 					if (isData) {
 						var dataString = $.toJSON(data);
 
-						//alert(dataString);
+						if (dctools.currentUser){
+                            var Review = Parse.Object.extend("Review");
+                            var review = new Review();
 
-						GM_setValue("dct-" + cur_name_el.html(), dataString);
+                            review.set("author", dctools.currentUser);
+                            review.set("subject", cur_name_el.html());
+                            review.set("comments", data.comments);
+
+                            review.setACL(new Parse.ACL(dctools.currentUser));
+                            review.save(null, {
+                                success: function(review) {
+                                    // Execute any logic that should take place after the object is saved.
+                                    alert('New object created with objectId: ' + review.id);
+                                },
+                                error: function(review, error) {
+                                    // Execute any logic that should take place if the save fails.
+                                    // error is a Parse.Error with an error code and message.
+                                    alert('Failed to create new object, with error code: ' + error.message);
+                                }
+                            });
+                        } else {
+                            GM_setValue("dct-" + cur_name_el.html(), dataString);
+                        }
 						track("Player Notes", "Note Created");
 					} else {
 						GM_deleteValue("dct-" + cur_name_el.html());
@@ -536,7 +299,7 @@ dctools.kakkuTheme = function() {
 	$('#hd').css("padding","5px 0 5px").css("text-align","left").css("width","auto");
 	$('#hd img').css("height","45px");
 
-	if(window.location.href.indexOf("#")!= 17  && window.location.href.indexOf("#")!= 21 ) {
+	if(window.location.href.indexOf("#")!= 18  && window.location.href.indexOf("#")!= 22 ) {
 		//menu
 		$('#iogc-regularMenu').clone().insertAfter('#hd');
 		//cleaning			
@@ -550,7 +313,7 @@ dctools.kakkuTheme = function() {
 		$('#forum div').css("padding-bottom","");
 		$('.all-item').css("margin-bottom","");
 
-		if(window.location.href.indexOf("profile")!= 17  && window.location.href.indexOf("profile")!= 21 ){		$("h2.mainheader").hide();	}
+		if(window.location.href.indexOf("profile")!= 18  && window.location.href.indexOf("profile")!= 22 ){		$("h2.mainheader").hide();	}
 
 	}else{
 		//gamewindow:
@@ -602,7 +365,7 @@ dctools.kakkuTheme = function() {
 
 dctools.addReview = function(userId, review, callback) {
 	if (dctools.browser == "chrome") {
-		chrome.runtime.sendMessage({'action' : 'addReview', 'userId' : userId, 'cid' : '', 'review' : review }, callback);
+        chrome.runtime.sendMessage({'action' : 'addReview', 'userId' : userId, 'cid' : '', 'review' : review }, callback);
 	} else if (dctools.browser == "firefox") {
 		
 		var advert = " -- [This review was automatically posted using Deadcode Tools for KDice.  Download: http://kdice.com/profile/44773121]"
@@ -625,24 +388,37 @@ dctools.addReview = function(userId, review, callback) {
 }
 
 dctools.currentSection = function() {
-	var base = "kdice.com";
-	var basehttp = "http://kdice.com";
-	var basewww = "www.kdice.com";
-	var basehttpwww = "http://www.kdice.com";
+    var bases = ["kdice.com",
+        "www.kdice.com",
+        "http://kdice.com",
+        "http://www.kdice.com",
+        "https://kdice.com",
+        "https://www.kdice.com"
+    ]
 	
 	var div = "/";
 	var isPrefix = function(s) {
-		if (window.location.href.indexOf(base + s) == 0) return true;
-		if (window.location.href.indexOf(basewww + s) == 0) return true;
-		if (window.location.href.indexOf(basehttp + s) == 0) return true;
-		if (window.location.href.indexOf(basehttpwww + s) == 0) return true;
+        var result = false;
+
+        $.each(bases, function(i, base){
+            if (window.location.href.indexOf(base + s) == 0){
+                result = true;
+                return false;
+            };
+        });
+
+        return result;
 	}
 	
 	if (isPrefix(div + "#")) return "game";
-    if (window.location.href == base + div) return "game";
-	if (window.location.href == basehttp + div) return "game";
-	if (window.location.href == basewww + div) return "game";
-	if (window.location.href == basehttpwww + div) return "game";
+    var isGame = false;
+    $.each(bases, function(i, base){
+        if (window.location.href == base + div) {
+            isGame = true;
+            return false;
+        }
+    });
+    if (isGame) return "game";
 
     if (isPrefix(div + "profile")) return "profile";
 
@@ -682,15 +458,19 @@ function replaceAll(string, find, replace) {
     return string.replace(new RegExp(escapeRegExp(find), 'g'), replace);
 }
 
-$(document).ready(function() {
-	if (window.top != window.self)  //-- Don't run on frames or iframes
-	    return;
+if (window.location.protocol != "https:"){
+    window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);
+}
 
-	dctools.chromeSupport();
-	
-	if(dctools.currentSection() == "game") {
-        window.setTimeout(dctools.init, 1500);
-	} else {
+angular.element(document).ready(function() {
+    if (window.top != window.self)  //-- Don't run on frames or iframes
+        return;
+
+    dctools.chromeSupport();
+
+    if(dctools.currentSection() == "game") {
+        window.setTimeout(dctools.newinit, 1500);
+    } else {
         dctools.init();
-	}
+    }
 });

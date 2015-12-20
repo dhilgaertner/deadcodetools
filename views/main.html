@@ -1,0 +1,78 @@
+<div ng-controller="main">
+    <div class="iogc-SidePanel-title"  style="margin-top: 10px;">Deadcode Tools</div>
+    <div class="iogc-SidePanel-inner">
+        <!--<span style="font-size: 9pt; margin-right: 10px;"><b>Profile</b>: {{currentUser ? currentUser.get('username') : 'Offline'}}</span>-->
+        <!--<a ng-show="currentUser" style="cursor: pointer;" ng-click="logout()">log out</a>-->
+        <!--<a ng-hide="currentUser" style="cursor: pointer;" ng-click="signup()">sign up</a><span ng-hide="currentUser"><b> &bull; </b></span>
+        -->
+        <!--<a ng-hide="currentUser" style="cursor: pointer;" ng-click="login()">log in</a></br>-->
+        <div style="font-size: 7pt; margin-top: 5px;">
+            <span><input type="checkbox" ng-model="playerNotesFlag" checked="true" disabled="true"/>
+                <b>Player Notes</b>: ON (
+                <span ng-if="currentUser" style="color: #094;">
+                  online
+                </span>
+                <span ng-if="currentUser == nil">
+                  local
+                </span>
+                )
+            </span><br/>
+            <span>
+                <input type="checkbox" ng-model="autoEndTurnFlag"/> <b>Auto End Turn</b>
+            </span><br/>
+            <span>
+                <input type="checkbox" ng-model="kakkuManFlag" ng-change="kakkuManFlagOnChange()"/> <b>Kakku Mans
+                Theme</b>
+            </span><br/>
+            <span>
+                <input type="checkbox" ng-model="betaFeaturesFlag" ng-change="betaFeaturesFlagOnChange()"/> <b>Show Voice Chat</b>
+            </span><br/>
+        </div>
+    </div>
+
+    <div ng-controller="voiceChat">
+        <div class="iogc-SidePanel-title" ng-show="betaFeaturesFlag" style="margin-top: 10px;">Table Voice Chat</div>
+        <div class="iogc-SidePanel-inner" ng-show="betaFeaturesFlag">
+            <div style="font-size: 7pt; margin-top: 5px;">
+                <span>
+                    State: {{talkState()}}
+                </span>
+                <br>
+                <span>
+                    <button type="button" class="iogc-NewButton" ng-click="connectVoiceChat()" ng-show="isDisconnected()" style="padding: 4px 8px 5px; background-color: #094;">
+                        Connect
+                    </button>
+                    <button type="button" class="iogc-NewButton" ng-click="disconnectVoiceChat()" ng-hide="isDisconnected()" style="padding: 4px 8px 5px; background-color: red;">
+                        Disconnect
+                    </button>
+                    <button type="button" class="iogc-NewButton" ng-click="muteVoiceChat()" ng-hide="isDisconnected()" style="padding: 4px 8px 5px; background-color: lightblue;">
+                        Mute
+                    </button>
+                    <button type="button" class="iogc-NewButton" ng-click="unmuteVoiceChat()" ng-hide="isDisconnected()" style="padding: 4px 8px 5px; background-color: lightblue;">
+                        Unmute
+                    </button>
+                </span>
+            </div>
+        </div>
+        <div class="iogc-SidePanel-title" ng-hide="voiceChatRooms().length == 0" style="margin-top: 10px;">Players Talking:</div>
+        <div class="iogc-SidePanel-inner" ng-hide="voiceChatRooms().length == 0">
+            <div style="font-size: 7pt; margin-top: 5px;">
+                <div ng-repeat="room in voiceChatRooms()">
+                    <div class="iogc-LoginPanel-playerRow">
+                        <a class="iogc-NewButton-blue iogc-NewButton iogc-LoginPanel-bigstat"
+                           style="font-size: 11px; padding: 4px 8px 5px; width: 30px;"
+                           href="{{room.roomName}}">
+                            Join Table
+                        </a>
+                        <div class="gwt-Label iogc-LoginPanel-heading">{{room.roomName}}</div>
+                        <div class="gwt-HTML iogc-LoginPanl-item">
+                            <div ng-repeat="user in room.participants">
+                                {{user.name}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
