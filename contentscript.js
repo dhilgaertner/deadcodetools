@@ -258,6 +258,8 @@ dctools.currentSection = function() {
 	}
 	
 	if (isPrefix(div + "#")) return "game";
+    if (isPrefix(div + "?canvas=1#")) return "game";
+
     var isGame = false;
     $.each(bases, function(i, base){
         if (window.location.href == base + div) {
