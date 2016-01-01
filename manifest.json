@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Deadcode Tools for KDice",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "This tools allows you to record/view notes on each player.  (www.kdice.com)",
   "permissions": [
     "http://*/*",
