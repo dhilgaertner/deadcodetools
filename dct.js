@@ -231,8 +231,11 @@ dctApp.controller('infobox', ['$scope', function ($scope) {
     }
 }]);
 
-dctApp.controller('voiceChat', ['$scope', 'talk', '$http', function ($scope, talk, $http) {
-    $scope.voiceChatRooms = [];
+dctApp.controller('voiceChat', ['$scope', 'talk', '$http', function ($scope, talk) {
+
+    $scope.activeTalker = function() {
+        return talk.activeTalker;
+    }
 
     $scope.talkState = function() {
         return talk.state;
@@ -277,10 +280,17 @@ dctApp.factory('talk', ['$window', '$http', '$rootScope', function(win, $http, $
 
     }
 
-    var talkStateChange = function (state) {
-        service.state = state;
+    var talkStateChange = function (state, part) {
+
+        if (state == "MODIFIED") {
+            service.activeTalker = part
+            console.dir(part);
+        } else {
+            service.state = state;
+            console.log("talk state change: " + state);
+        }
+
         $rootScope.$apply();
-        console.log("talk state change: " + state);
     }
 
     var talk = new Talk("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", initTalk, talkStateChange);

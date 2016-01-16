@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Deadcode Tools for KDice",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "This tools allows you to record/view notes on each player.  (www.kdice.com)",
   "permissions": [
     "http://*/*",
@@ -25,7 +25,7 @@
           "libs/async.js",
           "libs/angular.min.js",
           "libs/parse-1.4.2.min.js",
-          "libs/yax-1.0.1.min.js",
+          "libs/yax-1.0.3.js",
           "dct.js",
           "contentscript.js"
       ]

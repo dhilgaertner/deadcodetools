@@ -31,27 +31,49 @@
     </div>
 
     <div ng-controller="voiceChat">
-        <div class="iogc-SidePanel-title" ng-show="betaFeaturesFlag" style="margin-top: 10px;">Table Voice Chat</div>
+        <div class="iogc-SidePanel-title" ng-show="betaFeaturesFlag" style="margin-top: 10px;">Voice Chat</div>
         <div class="iogc-SidePanel-inner" ng-show="betaFeaturesFlag">
             <div style="font-size: 7pt; margin-top: 5px;">
+                <div ng-show="activeTalker().energy > 20" style="margin-bottom: 10px;">
+                    <div  style="float:left;width: 40px;">
+                        {{activeTalker().name}}
+                    </div>
+                    <div  style="float:right;width: 100px; border: 0px solid red;">
+                        <div ng-show="activeTalker().energy > 20" style="float:left; height: 15px; background-color: limegreen; width: 7px; margin-right: 4px;"></div>
+                        <div ng-show="activeTalker().energy > 50" style="float:left; height: 15px; background-color: limegreen; width: 7px; margin-right: 4px;"></div>
+                        <div ng-show="activeTalker().energy > 100" style="float:left; height: 15px; background-color: limegreen; width: 7px; margin-right: 4px;"></div>
+                        <div ng-show="activeTalker().energy > 300" style="float:left; height: 15px; background-color: limegreen; width: 7px; margin-right: 4px;"></div>
+                        <div ng-show="activeTalker().energy > 500" style="float:left; height: 15px; background-color: yellow; width: 7px; margin-right: 4px;"></div>
+                        <div ng-show="activeTalker().energy > 800" style="float:left; height: 15px; background-color: yellow; width: 7px; margin-right: 4px;"></div>
+                        <div ng-show="activeTalker().energy > 1000" style="float:left; height: 15px; background-color: yellow; width: 7px; margin-right: 4px;"></div>
+                        <div ng-show="activeTalker().energy > 5000" style="float:left; height: 15px; background-color: red; width: 7px; margin-right: 4px;"></div>
+                        <div ng-show="activeTalker().energy > 10000" style="float:left; height: 15px; background-color: red; width: 7px; margin-right: 4px;"></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                </div>
                 <span>
                     State: {{talkState()}}
                 </span>
                 <br>
-                <span>
-                    <button type="button" class="iogc-NewButton" ng-click="connectVoiceChat()" ng-show="isDisconnected()" style="padding: 4px 8px 5px; background-color: #094;">
-                        Connect
-                    </button>
-                    <button type="button" class="iogc-NewButton" ng-click="disconnectVoiceChat()" ng-hide="isDisconnected()" style="padding: 4px 8px 5px; background-color: red;">
-                        Disconnect
-                    </button>
-                    <button type="button" class="iogc-NewButton" ng-click="muteVoiceChat()" ng-hide="isDisconnected()" style="padding: 4px 8px 5px; background-color: lightblue;">
-                        Mute
-                    </button>
-                    <button type="button" class="iogc-NewButton" ng-click="unmuteVoiceChat()" ng-hide="isDisconnected()" style="padding: 4px 8px 5px; background-color: lightblue;">
-                        Unmute
-                    </button>
-                </span>
+                <div>
+                    <div style="float:left;width: 100px;">
+                        <button type="button" class="iogc-NewButton" ng-click="connectVoiceChat()" ng-show="isDisconnected()" style="padding: 4px 8px 5px; background-color: #094; height: 45px; width: 100px;">
+                            Connect
+                        </button>
+                        <button type="button" class="iogc-NewButton" ng-click="disconnectVoiceChat()" ng-hide="isDisconnected()" style="padding: 4px 8px 5px; background-color: red; height: 45px; width: 100px;">
+                            Disconnect
+                        </button>
+                    </div>
+                    <div style="float:right;width: 70px;">
+                        <button type="button" class="iogc-NewButton" ng-click="muteVoiceChat()" ng-hide="isDisconnected()" style="padding: 4px 8px 5px; background-color: lightblue; width: 70px;">
+                            Mute
+                        </button>
+                        <button type="button" class="iogc-NewButton" ng-click="unmuteVoiceChat()" ng-hide="isDisconnected()" style="padding: 4px 8px 5px; background-color: lightblue; width: 70px;">
+                            Unmute
+                        </button>
+                    </div>
+                    <div style="clear:both;"></div>
+                </div>
             </div>
         </div>
         <div class="iogc-SidePanel-title" ng-hide="voiceChatRooms().length == 0" style="margin-top: 10px;">Players Talking:</div>
